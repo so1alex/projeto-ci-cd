@@ -1,6 +1,6 @@
 // --- Lógica Principal: Função de Soma ---
-// Esta é a função que seu teste Jest cobre
-function soma(a, b) {
+// Usamos 'exports.soma' para que o Jest possa importar apenas esta função.
+exports.soma = function (a, b) {
     // Garantir que os inputs são tratados como números
     const numA = Number(a);
     const numB = Number(b);
@@ -10,12 +10,12 @@ function soma(a, b) {
         return numA + numB;
     }
 
-    // Se os inputs não forem números válidos, retorna NaN ou um erro
+    // Se os inputs não forem números válidos, retorna NaN
     return NaN;
-}
+};
 
 // --- Handler de API (Formato obrigatório pela Vercel) ---
-// O módulo deve exportar uma função que recebe os objetos request (req) e response (res).
+// O Vercel usa o 'module.exports' principal para a API.
 module.exports = (req, res) => {
     // 1. Extrair Parâmetros da Query String (URL: ?a=X&b=Y)
     const { a, b } = req.query;
@@ -32,8 +32,8 @@ module.exports = (req, res) => {
         }));
     }
 
-    // 3. Chamar a função de soma
-    const resultadoSoma = soma(a, b);
+    // 3. Chamar a função de soma exportada (exports.soma)
+    const resultadoSoma = exports.soma(a, b);
 
     // 4. Retornar o resultado
     if (!isNaN(resultadoSoma)) {
