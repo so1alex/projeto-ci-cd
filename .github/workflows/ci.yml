@@ -1,10 +1,12 @@
-name: CI com Jest e Deploy na Vercel
+name: CI com Testes e Deploy na Vercel
 on:
   push:
     branches:
       - main
+
 jobs:
-  build-and-test:
+  # 1. JOB DE SEGURANÇA (SCAN DE DEPENDÊNCIAS - SCA)
+  security-scan:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout do código
@@ -13,7 +15,46 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Instalar dependências
-        run: npm install
+      - name: Instalar dependências (CI)
+        run: npm ci
+      - name: Instalar retire.js (Globalmente)
+        run: npm install -g retire
+
+      # Este passo procura por dependências com vulnerabilidades conhecidas
+      - name: Executar Scan de Segurança (Retire.js)
+        run: retire --outputformat json --outputpath retire-report.json
+      
+      # Nota: Por ser um projeto novo sem muitas dependências, o scan deve passar.
+      # Se houver vulnerabilidades, este passo falhará e bloqueará o deploy.
+
+  # 2. JOB DE BUILD E TESTE
+  build-and-test:
+    needs: security-scan # Este Job só roda se o scan de segurança passar
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Instalar dependências (CI)
+        run: npm ci
       - name: Executar testes com Jest
-        run: npm test
+        run: npx jest
+
+  # 3. JOB DE DEPLOY CONTÍNUO (CD)
+  deploy:
+    needs: build-and-test # Este Job só roda se o build e testes passarem
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+      - name: Configurar Vercel CLI
+        run: npm install -g vercel
+
+      - name: Iniciar Deploy para Vercel (Produção)
+        run: vercel deploy --prebuilt --prod --token ${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
