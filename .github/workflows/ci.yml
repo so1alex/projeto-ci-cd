@@ -48,10 +48,10 @@ jobs:
           node-version: '20'
 
       - name: 3. Vercel Build (Prepara a aplicação)
-        uses: vercel/actions/build@v1
-      
+        uses: vercel/actions/build
+
       - name: 4. Deploy para Produção (Implanta a aplicação)
-        uses: vercel/actions/deploy-with-prebuilt@v1
+        uses: vercel/actions/deploy-with-prebuilt
         with:
           token: ${{ secrets.VERCEL_TOKEN }}
           org-id: ${{ secrets.VERCEL_ORG_ID }}
