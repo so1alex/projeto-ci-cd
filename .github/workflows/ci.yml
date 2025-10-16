@@ -42,20 +42,16 @@ jobs:
       - name: 1. Checkout do código
         uses: actions/checkout@v4
 
-      - name: 2. Configurar Node.js (necessário para a Action da Vercel)
-        uses: actions/setup-node@v4
+      # Novo passo: Usando Action de terceiros mais estável para deploy
+      - name: 2. Deploy para Produção na Vercel
+        uses: amondnet/vercel-action@v25
         with:
-          node-version: '20'
-
-      - name: 3. Vercel Build (Prepara a aplicação)
-        # CORREÇÃO: Usando o caminho de referência mais estável e testado da Vercel.
-        uses: vercel/actions/build@v1
-
-      - name: 4. Deploy para Produção (Implanta a aplicação)
-        # CORREÇÃO: Usando o caminho de referência mais estável e testado da Vercel.
-        uses: vercel/actions/deploy-with-prebuilt@v1
-        with:
-          token: ${{ secrets.VERCEL_TOKEN }}
-          org-id: ${{ secrets.VERCEL_ORG_ID }}
-          project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          prod: true
+          # TOKEN DE ACESSO PESSOAL DA VERCEL
+          vercel-token: ${{ secrets.VERCEL_TOKEN }} 
+          # ID DA ORGANIZAÇÃO OU USUÁRIO
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          # ID DO PROJETO
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          # O build e deploy serão feitos automaticamente
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          vercel-args: '--prod'
