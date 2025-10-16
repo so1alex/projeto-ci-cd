@@ -1,0 +1,10 @@
+{
+"functions": {
+"src/index.js": {
+"runtime": "nodejs18.x"
+}
+},
+"rewrites": [
+{ "source": "/api/soma", "destination": "src/index.js" }
+]
+}
