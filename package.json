@@ -1,0 +1,21 @@
+{
+  "name": "projeto-ci-cd",
+  "version": "1.0.0",
+  "description": "Exemplo de pipeline CI/CD com GitHub Actions, Jest e Vercel.",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [
+    "ci",
+    "cd",
+    "devops",
+    "jest",
+    "vercel"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}

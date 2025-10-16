@@ -1,0 +1,64 @@
+# .github/workflows/ci.yml
+# Este arquivo define o pipeline completo de CI/CD.
+
+name: CI/CD com Jest e Deploy na Vercel
+
+on:
+  # O pipeline será acionado sempre que houver um push na branch 'main'
+  push:
+    branches:
+      - main
+
+jobs:
+  # --- 1. JOB DE INTEGRAÇÃO CONTÍNUA (CI): Build e Testes ---
+  build-and-test:
+    name: Integração Contínua (CI)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Checkout do código
+        uses: actions/checkout@v4
+
+      - name: 2. Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 3. Instalar dependências (incluindo Jest)
+        run: npm install
+
+      - name: 4. Executar testes com Jest
+        # Se este comando falhar, o job `build-and-test` falhará,
+        # impedindo a execução do job `deploy`.
+        run: npm test
+
+  # --- 2. JOB DE IMPLANTAÇÃO CONTÍNUA (CD): Deploy na Vercel ---
+  deploy:
+    name: Implantação Contínua (CD) na Vercel
+    runs-on: ubuntu-latest
+    
+    # Este job só será executado SE o job `build-and-test` for concluído com sucesso.
+    needs: build-and-test 
+    
+    steps:
+      - name: 1. Checkout do código
+        uses: actions/checkout@v4
+
+      # Configura o Node.js para que a Action da Vercel funcione
+      - name: 2. Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 3. Deploy para Produção na Vercel
+        # Utiliza a Action oficial da Vercel para gerenciar o deploy
+        uses: vercel/actions/deploy@v2
+        with:
+          # O token de acesso pessoal da Vercel, armazenado como um segredo do GitHub
+          token: ${{ secrets.VERCEL_TOKEN }}
+          # O ID da Organização/Time Vercel (obrigatório para integração com GitHub Actions)
+          org-id: ${{ secrets.VERCEL_ORG_ID }}
+          # O ID do Projeto Vercel (obrigatório)
+          project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          # Configura o deploy como produção (para branch main)
+          prod: true
