@@ -48,11 +48,11 @@ jobs:
           node-version: '20'
 
       - name: 3. Vercel Build (Prepara a aplicação)
-        # CORREÇÃO: Adiciona @v1, que o GitHub Actions espera como referência
+        # CORREÇÃO: Usando o caminho de referência mais estável e testado da Vercel.
         uses: vercel/actions/build@v1
 
       - name: 4. Deploy para Produção (Implanta a aplicação)
-        # CORREÇÃO: Adiciona @v1, que o GitHub Actions espera como referência
+        # CORREÇÃO: Usando o caminho de referência mais estável e testado da Vercel.
         uses: vercel/actions/deploy-with-prebuilt@v1
         with:
           token: ${{ secrets.VERCEL_TOKEN }}
