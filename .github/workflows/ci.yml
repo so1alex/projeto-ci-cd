@@ -50,18 +50,18 @@ jobs:
       - name: Configurar Vercel CLI
         run: npm install -g vercel
 
-      # PASSO CRÍTICO ADICIONADO: Baixa as configurações do projeto da Vercel
+      # PASSO 1: Baixa as configurações do projeto da Vercel
       - name: Baixar Configurações do Projeto (vercel pull)
         run: vercel pull --yes --token ${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
-      # Gera a saída de build local que o --prebuilt espera
-      - name: Gerar Build da Vercel
-        run: vercel build --token ${{ secrets.VERCEL_TOKEN }}
+      # PASSO 2: CORREÇÃO: Gera a saída de build local FORÇANDO o ambiente 'production'
+      - name: Gerar Build de Produção da Vercel
+        run: vercel build --prod --token ${{ secrets.VERCEL_TOKEN }}
 
-      # Usa o resultado do build gerado acima e faz o deploy
+      # PASSO 3: Usa o build de produção gerado e faz o deploy
       - name: Iniciar Deploy para Vercel (Produção)
         run: vercel deploy --prebuilt --prod --token ${{ secrets.VERCEL_TOKEN }}
         env:
