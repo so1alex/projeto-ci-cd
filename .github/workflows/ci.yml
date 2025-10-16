@@ -1,57 +1,19 @@
-name: CI/CD com Jest e Deploy na Vercel
-
+name: CI com Jest e Deploy na Vercel
 on:
   push:
     branches:
       - main
-
 jobs:
-  # --- 1. JOB DE INTEGRAÇÃO CONTÍNUA (CI): Build e Testes ---
   build-and-test:
-    name: Integração Contínua (CI)
     runs-on: ubuntu-latest
-
     steps:
-      - name: 1. Checkout do código
+      - name: Checkout do código
         uses: actions/checkout@v4
-
-      - name: 2. Configurar Node.js
+      - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-
-      - name: 3. Instalar dependências (incluindo Jest)
+      - name: Instalar dependências
         run: npm install
-
-      # Corrige a permissão de execução do binário Jest no ambiente Linux
-      - name: 4. Corrigir permissão de execução do Jest
-        run: chmod +x node_modules/.bin/jest
-
-      - name: 5. Executar testes com Jest
+      - name: Executar testes com Jest
         run: npm test
-
-  # --- 2. JOB DE IMPLANTAÇÃO CONTÍNUA (CD): Deploy na Vercel ---
-  deploy:
-    name: Implantação Contínua (CD) na Vercel
-    runs-on: ubuntu-latest
-    
-    # Este job só será executado SE o job 'build-and-test' for concluído com sucesso.
-    needs: build-and-test 
-    
-    steps:
-      - name: 1. Checkout do código
-        uses: actions/checkout@v4
-
-      # Novo passo: Usando Action de terceiros mais estável para deploy
-      - name: 2. Deploy para Produção na Vercel
-        uses: amondnet/vercel-action@v25
-        with:
-          # TOKEN DE ACESSO PESSOAL DA VERCEL
-          vercel-token: ${{ secrets.VERCEL_TOKEN }} 
-          # ID DA ORGANIZAÇÃO OU USUÁRIO
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          # ID DO PROJETO
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          # O build e deploy serão feitos automaticamente
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          vercel-args: '--prod'
