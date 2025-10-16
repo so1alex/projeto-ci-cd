@@ -1,15 +1,23 @@
-/**
- * tests/index.test.js
- * Teste unitário para a função soma.
- */
-const soma = require('../src/index');
+// Importa o objeto inteiro que foi exportado (exports) de src/index.js
+const app = require('../src/index.js');
 
-test('soma dois números corretamente', () => {
-  // Espera que a soma de 2 e 3 seja 5
-  expect(soma(2, 3)).toBe(5);
-});
+// A função pura 'soma' agora está dentro do objeto 'app'.
+const soma = app.soma;
 
-test('soma com zero', () => {
-  // Verifica se a soma com zero funciona
-  expect(soma(5, 0)).toBe(5);
+describe('Função de Soma', () => {
+    test('soma dois números corretamente', () => {
+        expect(soma(10, 5)).toBe(15);
+        expect(soma(1.5, 2.5)).toBe(4);
+    });
+
+    test('soma com zero', () => {
+        expect(soma(5, 0)).toBe(5);
+        expect(soma(0, 0)).toBe(0);
+    });
+
+    test('retorna NaN para inputs não numéricos', () => {
+        expect(soma('a', 5)).toBeNaN();
+        expect(soma(10, 'b')).toBeNaN();
+        expect(soma(null, 5)).toBe(5); // null é tratado como 0 em Number()
+    });
 });
