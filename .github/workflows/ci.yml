@@ -1,10 +1,9 @@
 # .github/workflows/ci.yml
-# Este arquivo define o pipeline completo de CI/CD.
+# Corrigido o erro de permissão 'jest: Permission denied'
 
 name: CI/CD com Jest e Deploy na Vercel
 
 on:
-  # O pipeline será acionado sempre que houver um push na branch 'main'
   push:
     branches:
       - main
@@ -27,9 +26,15 @@ jobs:
       - name: 3. Instalar dependências (incluindo Jest)
         run: npm install
 
-      - name: 4. Executar testes com Jest
-        # Se este comando falhar, o job `build-and-test` falhará,
-        # impedindo a execução do job `deploy`.
+      # =========================================================
+      # 💥 PASSO DE CORREÇÃO: Adiciona permissão de execução ao Jest 
+      # =========================================================
+      - name: 4. Corrigir permissão de execução do Jest
+        # O 'chmod +x' adiciona a permissão de execução (eXecute) 
+        # ao binário do Jest dentro da pasta de módulos.
+        run: chmod +x node_modules/.bin/jest
+
+      - name: 5. Executar testes com Jest
         run: npm test
 
   # --- 2. JOB DE IMPLANTAÇÃO CONTÍNUA (CD): Deploy na Vercel ---
@@ -44,21 +49,15 @@ jobs:
       - name: 1. Checkout do código
         uses: actions/checkout@v4
 
-      # Configura o Node.js para que a Action da Vercel funcione
-      - name: 2. Configurar Node.js
+      - name: 2. Configurar Node.js (necessário para a Action da Vercel)
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
       - name: 3. Deploy para Produção na Vercel
-        # Utiliza a Action oficial da Vercel para gerenciar o deploy
         uses: vercel/actions/deploy@v2
         with:
-          # O token de acesso pessoal da Vercel, armazenado como um segredo do GitHub
           token: ${{ secrets.VERCEL_TOKEN }}
-          # O ID da Organização/Time Vercel (obrigatório para integração com GitHub Actions)
           org-id: ${{ secrets.VERCEL_ORG_ID }}
-          # O ID do Projeto Vercel (obrigatório)
           project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          # Configura o deploy como produção (para branch main)
           prod: true
