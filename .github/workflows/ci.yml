@@ -1,5 +1,5 @@
 # .github/workflows/ci.yml
-# Corrigido o erro de permissão 'jest: Permission denied'
+# Corrigido o erro de caminho 'vercel/actions/deploy@v2'
 
 name: CI/CD com Jest e Deploy na Vercel
 
@@ -9,7 +9,6 @@ on:
       - main
 
 jobs:
-  # --- 1. JOB DE INTEGRAÇÃO CONTÍNUA (CI): Build e Testes ---
   build-and-test:
     name: Integração Contínua (CI)
     runs-on: ubuntu-latest
@@ -26,23 +25,16 @@ jobs:
       - name: 3. Instalar dependências (incluindo Jest)
         run: npm install
 
-      # =========================================================
-      # 💥 PASSO DE CORREÇÃO: Adiciona permissão de execução ao Jest 
-      # =========================================================
       - name: 4. Corrigir permissão de execução do Jest
-        # O 'chmod +x' adiciona a permissão de execução (eXecute) 
-        # ao binário do Jest dentro da pasta de módulos.
         run: chmod +x node_modules/.bin/jest
 
       - name: 5. Executar testes com Jest
         run: npm test
 
-  # --- 2. JOB DE IMPLANTAÇÃO CONTÍNUA (CD): Deploy na Vercel ---
   deploy:
     name: Implantação Contínua (CD) na Vercel
     runs-on: ubuntu-latest
     
-    # Este job só será executado SE o job `build-and-test` for concluído com sucesso.
     needs: build-and-test 
     
     steps:
@@ -55,9 +47,18 @@ jobs:
           node-version: '20'
 
       - name: 3. Deploy para Produção na Vercel
-        uses: vercel/actions/deploy@v2
+        # =========================================================
+        # 💥 CORREÇÃO: Usando o caminho atualizado 'vercel/actions/build' seguido de 'vercel/actions/deploy'
+        # =========================================================
+        # Para evitar problemas de caminho, o fluxo da Vercel agora usa dois passos separados.
+
+      - name: 4. Vercel Build (Prepara a aplicação)
+        uses: vercel/actions/build@v1 # NOVO CAMINHO
+      
+      - name: 5. Deploy para Produção (Implanta a aplicação)
+        uses: vercel/actions/deploy-with-prebuilt@v1 # NOVO CAMINHO
         with:
           token: ${{ secrets.VERCEL_TOKEN }}
           org-id: ${{ secrets.VERCEL_ORG_ID }}
           project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          prod: true
+          prod: true # Define como deploy de produção
