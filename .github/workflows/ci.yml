@@ -24,12 +24,9 @@ jobs:
       - name: Executar Scan de Segurança (Retire.js)
         run: retire --outputformat json --outputpath retire-report.json
       
-      # Nota: Por ser um projeto novo sem muitas dependências, o scan deve passar.
-      # Se houver vulnerabilidades, este passo falhará e bloqueará o deploy.
-
   # 2. JOB DE BUILD E TESTE
   build-and-test:
-    needs: security-scan # Este Job só roda se o scan de segurança passar
+    needs: security-scan
     runs-on: ubuntu-latest
     steps:
       - name: Checkout do código
@@ -45,7 +42,7 @@ jobs:
 
   # 3. JOB DE DEPLOY CONTÍNUO (CD)
   deploy:
-    needs: build-and-test # Este Job só roda se o build e testes passarem
+    needs: build-and-test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout do código
@@ -53,6 +50,11 @@ jobs:
       - name: Configurar Vercel CLI
         run: npm install -g vercel
 
+      # PASSO CORRIGIDO: Gera a saída de build local que o --prebuilt espera
+      - name: Gerar Build da Vercel
+        run: vercel build --token ${{ secrets.VERCEL_TOKEN }}
+
+      # PASSO CORRIGIDO: Usa o resultado do build gerado acima
       - name: Iniciar Deploy para Vercel (Produção)
         run: vercel deploy --prebuilt --prod --token ${{ secrets.VERCEL_TOKEN }}
         env:
